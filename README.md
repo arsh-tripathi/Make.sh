@@ -1,5 +1,6 @@
 # MAKE.sh
 **A make tool simulating script for C projects**
+
 As I was trying to compile a C project, I remembered the existence of Make tools, which could easily compile all the necessary files and run the project. But when I tried to use the tool on my Windows computer, I noticed there were a lot of requirements to be fulfilled for doing something so simple.
 
 Here is the fix to those problems. I have written a bash script (titled make) that simulates all the basic functionality of the Makefile. It compiles necessary files only, thus reducing uneccesary compilation, complication and a lot of typing for the user.
