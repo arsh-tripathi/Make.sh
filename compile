@@ -1,0 +1,101 @@
+#!/bin/bash
+# Usage: ./compile folderpath output
+
+if [ $# != 2 ]
+then
+    echo "Usage: ./compile folderpath output"
+    exit 1
+fi
+
+# Changing directories to source
+if [ ! -d $1 ]
+then 
+    echo "Directory doesn't exist or is not readable"
+    exit 1
+fi
+
+cd $1
+
+if [ -d bin ]
+then 
+    echo "Log:" > bin/compile.log
+fi
+
+if [ ! -d src ]
+then 
+    echo "src sub-directory doesn't exist"
+    exit 1
+elif [ ! -d bin ]
+then 
+    mkdir bin
+    echo "Creating bin directory" > bin/compile.log
+elif [ ! -d obj ]
+then
+    echo "Creating obj directory" > bin/compile.log
+    mkdir obj
+fi
+
+cd src
+
+files=$(ls *.c)
+updated=false
+log=../bin/compile.log
+
+for filename in $files
+do
+    cfile=$filename
+    dfile=${filename%".c"}.d
+    echo $(gcc -MM $cfile) > ../bin/$dfile
+    dfile_content=$(cat ../bin/$dfile)
+    ofile=${filename%".c"}.o
+    recompile=false
+    for depend in $dfile_content
+    do
+        if [[ "$depend" =~ .o:$ ]]
+        then 
+            echo "Checking dependecies for $depend" >> $log
+        elif [ -f ../obj/$ofile -a $depend -ot ../obj/$ofile ]
+        then
+            echo "$depend is unchanged" >> $log
+        else
+            echo "$depend is modified or $ofile does not exist" >> $log
+            recompile=true
+        fi
+    done
+    if [ $recompile == true ]
+    then
+        updated=true
+        echo "Compiling $cfile" >> $log
+        gcc -c -g -Wall $cfile -o ../obj/$ofile
+        if [ $? -ne 0 ]
+        then 
+            echo "Compilation error" >> $log
+            exit 1
+        fi
+    fi
+done
+
+cd ../obj
+
+if [ -f ../bin/$2 -a $updated == false ]
+then
+    echo "Executable is already upto date" >> $log
+else
+    echo "Creating $2 in bin" >> $log
+    gcc -g -Wall $(ls *.o) -o ../bin/$2
+    if [ $? -ne 0 ]
+    then 
+        echo "Linking error" >> $log
+        exit 1
+    fi
+fi
+
+run=../bin/$2.exe
+chmod a+x $run
+$run
+
+if [ $? -ne 0 ]
+then
+    echo "Run error" >> $log
+    exit 1
+fi
