@@ -1,10 +1,8 @@
 Log:
 Checking dependecies for main.o:
 main.c is unchanged
-include/other.h is modified or main.o does not exist
-Compiling main.c
+include/other.h is unchanged
 Checking dependecies for other.o:
 other.c is unchanged
-include/other.h is modified or other.o does not exist
-Compiling other.c
-Creating main in bin
+include/other.h is unchanged
+Executable is already upto date
